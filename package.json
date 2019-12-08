@@ -1,0 +1,43 @@
+{
+  "name": "sly-api",
+  "version": "0.0.9",
+  "description": "",
+  "main": "slyapi.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js",
+    "watch": "nodemon"
+  },
+  "author": "Timbo Slice",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "body-parser": "^1.19.0",
+    "connect-mongo": "^2.0.3",
+    "cookie-parser": "^1.4.4",
+    "cors": "^2.8.5",
+    "express": "^4.16.4",
+    "express-session": "^1.16.1",
+    "handlebars": "^4.1.2",
+    "jsonwebtoken": "^8.5.1",
+    "mongoose": "^5.5.6",
+    "nodemailer": "^6.1.1",
+    "passport": "^0.4.0",
+    "passport-jwt": "^4.0.0",
+    "passport-local": "^1.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^1.19.4"
+  },
+  "nodemonConfig": {
+    "ext": "*js",
+    "watch": [
+      "**/*"
+    ],
+    "ignore": [
+      "node_modules/"
+    ],
+    "verbose": true,
+    "legacyWatch": true
+  }
+}

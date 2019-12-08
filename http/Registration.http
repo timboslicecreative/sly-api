@@ -1,0 +1,11 @@
+### Registration by email ans password
+POST http://localhost:3000/user
+Content-Type: application/json
+
+{
+  "email": "test@sly-api.com",
+  "password": "abc123",
+  "passwordConfirm": "abc123"
+}
+
+###

@@ -1,0 +1,53 @@
+version: '3'
+
+services:
+
+  db:
+    image: mongo:4
+    ports:
+      - "27017:27017"
+
+  mongo_express:
+    image: mongo-express
+    environment:
+      - ME_CONFIG_MONGODB_SERVER=db
+    ports:
+      - "8081:8081"
+    depends_on:
+      - db
+
+  api:
+    container_name: sly-api
+    image: sly-api:1
+    build: ./
+    working_dir: /usr/src/
+    environment:
+      - MONGO_URI=mongodb://db/focus
+      - PORT=3000
+      - NODE_ENV=production
+      - COOKIE_SIGNED=1
+      - COOKIE_SECRET=abuashainiIN&Gg7in7gisn7ggn6U6vu6vn6jkngg7g
+      - COOKIE_SECURE=0
+      - COOKIE_HTTP_ONLY=1
+      - COOKIE_EXPIRY=604800000
+      - ALLOWED_HOSTS=http://localhost:8000
+      - ADMIN_EMAIL=me@timboslice.co
+      - SMTP_HOST=smtp.ethereal.email
+      - SMTP_PORT=587
+      - SMTP_SECURE=0
+      - SMTP_USER=jaleel.kulas2@ethereal.email
+      - SMTP_PASSWORD=W7BqVcEDkWSrktn5dq
+      - SMTP_FROM=jaleel.kulas2@ethereal.email
+      - JWT_SECRET=DFHRLT5h3x8RQbtk9l4GV2ZLXkD3h-V86x2vmH_oks8
+      - JWT_ISSUER=auth.focus.com
+      - JWT_AUDIENCE=localhost
+      - JWT_EXPIRY=604800
+      - CODE_LENGTH=6
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./:/usr/src
+      - /usr/src/node_modules
+    depends_on:
+      - db
+    command: npm run watch
