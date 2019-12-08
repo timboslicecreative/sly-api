@@ -3,22 +3,22 @@ const Endpoint = require('../endpoints').Endpoint;
 
 class AuthEndpoint extends Endpoint {
 
-    constructor(app, path, controller, authStrategies) {
-        super(app, path, controller, authStrategies);
+    constructor(app, path, controller, strategies) {
+        super(app, path, controller, strategies);
     }
 
     initialize() {
         this.authentication();
-        console.log('auth initialize');
+        // console.log('auth initialize');
     }
 
     authentication() {
-        console.log('loading auth routes', this.authStrategies);
-        const app = this.app;
-        const authJWT = this.authStrategies.jsonWebToken;
-        const authLocal = this.authStrategies.local;
-        const authCode = this.authStrategies.localCode;
+        // console.log('loading auth routes', this.strategies);
         const controller = this.controller;
+        const app = this.app;
+        const authJWT = this.strategies.jsonWebToken;
+        const authLocal = this.strategies.local;
+        const authCode = this.strategies.localCode;
 
         // Authentication Routes
         /**

@@ -22,9 +22,9 @@ services:
     build: ./
     working_dir: /usr/src/
     environment:
-      - MONGO_URI=mongodb://db/focus
+      - MONGO_URI=mongodb://db/slydb
       - PORT=3000
-      - NODE_ENV=production
+      - NODE_ENV=development
       - COOKIE_SIGNED=1
       - COOKIE_SECRET=abuashainiIN&Gg7in7gisn7ggn6U6vu6vn6jkngg7g
       - COOKIE_SECURE=0

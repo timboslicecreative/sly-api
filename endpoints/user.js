@@ -3,8 +3,8 @@ const Endpoint = require('../endpoints').CrudEndpoint;
 
 class UsersEndpoint extends Endpoint {
 
-    constructor(app, path, controller) {
-        super(app, path, controller);
+    constructor(app, path, controller, strategies) {
+        super(app, path, controller, strategies);
     }
 
     initialize() {
@@ -13,7 +13,7 @@ class UsersEndpoint extends Endpoint {
 
     user() {
         const app = this.app;
-        const authJWT = this.authStrategies.jsonWebToken;
+        const authJWT = this.strategies.jsonWebToken;
         const controller = this.controller;
 
         app.post('/users/email', authJWT, controller.updateEmail);

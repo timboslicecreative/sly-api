@@ -5,9 +5,7 @@ const Token = mongoose.model('Token');
 const LocalStrategy = require('passport-local').Strategy;
 const JwtStrategy = require('passport-jwt').Strategy;
 const ExtractJwt = require('passport-jwt').ExtractJwt;
-const constants = require('../constants');
-const authController = require('../controllers/auth');
-const ERRORS = constants.ERRORS;
+const errors = require('../constants/errors');
 
 const jwtCookieExtractor = function (req) {
     if (req.signedCookies && req.signedCookies['token']) return req.signedCookies['token'];
@@ -50,7 +48,7 @@ passport.use('jwt', new JwtStrategy(JWT_OPTIONS, (jwt_payload, done) => {
     User.findById(jwt_payload.sub)
         .then(user => {
             if (user) return done(null, user);
-            else return done(null, false, ERRORS['invalid-token']);
+            else return done(null, false, errors.named['invalid-token']);
         })
         .catch(error => done(error, false));
 }));
@@ -59,7 +57,7 @@ passport.use('local-password', new LocalStrategy(LOCAL_OPTIONS, (email, password
     User.authenticate(email, password)
         .then(user => {
             if (user) return done(null, user);
-            else return done(null, false, ERRORS['invalid-credentials']);
+            else return done(null, false, errors.named['invalid-credentials']);
         })
         .catch(error => done(null, false, error));
 }));
@@ -101,18 +99,19 @@ class Passport {
 
         return function (req, res, next) {
             auth(strategy, strategyOptions, function (error, user, info) {
+                //TODO: log auth errors somewhere so problems can be detected by volume increases
                 if (error) {
                     controller.deauthenticate(res);
-                    console.log('AuthStrategy:error', error);
+                    //console.log('AuthStrategy:error', info);
                     return res.status(404).json(error);
                 }
                 if (!user) {
                     controller.deauthenticate(res);
-                    console.log('AuthStrategy:no user:info', info);
-                    return res.status(401).json(info);
+                    //PACKAGEconsole.log('AuthStrategy:no user:info', info);
+                    return res.status(401).json(errors.named['invalid-credentials']);
                 }
                 req.user = user;
-                next(err)
+                next(error)
             })(req, res, next);
         }
     };

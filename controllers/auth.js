@@ -20,7 +20,6 @@ class AuthController extends Controller {
     }
 
     authenticate(req, res) {
-        console.log(`authentivcate ${req.user} `);
         const sendToken = req.params.token;
         if (sendToken) {
             res.json({token: req.user.generateJsonWebToken()});

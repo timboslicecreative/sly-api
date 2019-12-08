@@ -1,23 +1,25 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const port = process.env.PORT;
-const app = express();
 const logo = require('./constants').logo;
 
 class Slyapi {
 
-    constructor() {
+    constructor(port, mongo_uri) {
         this.authStrategies = {};
+        this.port = port || process.env.PORT || 3000;
+        this.mongo_uri = mongo_uri || process.env.MONGO_URI || 'mongodb://db/slydb';
     }
 
     configureExpress() {
         // Configure Express
         console.log('\nLoading express configuration.\n');
-        require('./config/express').initialize(app);
+        this.app = express();
+        this.server = null;
+        require('./config/express').initialize(this.app);
 
     }
 
-    configureAuthentication(){
+    configureAuthentication() {
         // Configure Passport
 
         console.log('\nCreate Authentication.\n');
@@ -31,11 +33,11 @@ class Slyapi {
         let endpoint = endpoints['auth'];
         let controller = new controllers['auth'](model);
 
-        const Passport = require('./config/passport');
-        const passport = new Passport(app, controller);
+        const passport = require('./config/passport');
+        const Passport = new passport(this.app, controller);
 
-        this.authStrategies = passport.getStrategies();
-        const authEndpoint = new endpoint(app, 'auth', controller).initialize();
+        this.authStrategies = Passport.getStrategies();
+        const authEndpoint = new endpoint(this.app, 'auth', controller, this.authStrategies).initialize();
     }
 
     loadModels() {
@@ -53,13 +55,14 @@ class Slyapi {
         this.endpoints = require('./endpoints').loadEndpoints();
     }
 
-    loadDefaultRoutes(){
+    loadDefaultRoutes() {
         console.log('\nLoading routes.\n');
-        require('./config/routes')(app);
+        require('./config/routes')(this.app);
     }
 
     createEndpoints() {
         console.log('\nCreating endpoints:\n');
+
         const models = this.models;
         const controllers = this.controllers;
         const endpoints = this.endpoints;
@@ -79,38 +82,67 @@ class Slyapi {
             // check for controller if none use default
             controller = endpoints.hasOwnProperty(name) ? controllers[name] : defaultController;
 
-            new endpoint(app, name.toLowerCase(), new controller(model), authStrategies);
+            new endpoint(this.app, name.toLowerCase(), new controller(model), authStrategies);
         }
     }
 
     listen() {
-        console.log(`\nBegin listening on port ${port}`);
-        app.listen(port);
-        console.log(`\nSly-api started on port ${port}\n`);
+        const app = this.app;
+        const port = this.port;
+        return new Promise((resolve, reject) => {
+            const server = app.listen(port, ()=>{
+                console.log(`\nSly-api started on port ${port}\n`);
+                resolve(server);
+            });
+        });
     }
 
     connect() {
-        console.log(`\nConnecting mongoose to ${process.env.MONGO_URI}\n`);
-        mongoose.connection
-            .on('error', console.log)
-            .on('disconnected', () => {
-                console.log('disconnected')
-            })
-            //.on('disconnected', connect)
-            .once('open', this.listen);
-        return mongoose.connect(process.env.MONGO_URI, {keepAlive: 1, useNewUrlParser: true});
+        const mongo_uri = this.mongo_uri;
+        return new Promise((resolve, reject) => {
+            console.log(`\nConnecting mongoose to ${mongo_uri}\n`);
+            mongoose.connection
+                .on('error', reject)
+                .on('disconnected', () => {
+                    console.log('disconnected')
+                })
+                //.on('disconnected', connect)
+                .once('open', () => {
+                    console.log('mongoose connected, resolving');
+                    resolve();
+                });
+
+            mongoose.set('useUnifiedTopology', true);
+            mongoose.set('useCreateIndex', true);
+            mongoose.connect(mongo_uri, {keepAlive: 1, useNewUrlParser: true});
+        });
     }
 
     start() {
-        console.log(logo);
-        this.loadModels();
-        this.loadControllers();
-        this.loadEndpoints();
-        this.configureExpress();
-        this.configureAuthentication();
-        this.createEndpoints();
-        this.loadDefaultRoutes();
-        this.connect();
+        return new Promise((resolve, reject) => {
+            console.log(logo);
+            this.loadModels();
+            this.loadControllers();
+            this.loadEndpoints();
+            this.configureExpress();
+            this.configureAuthentication();
+            this.createEndpoints();
+            this.loadDefaultRoutes();
+            this.connect()
+                .then(() => this.listen())
+                .then(server => {
+                    this.server = server;
+                    resolve(server);
+                })
+                .catch(reject);
+        })
+    }
+
+    stop(){
+        const port = this.port;
+        this.server.close(()=>{
+           console.log(`\nSly-api stopped on port ${port}\n`);
+       });
     }
 }
 

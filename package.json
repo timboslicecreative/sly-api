@@ -4,9 +4,10 @@
   "description": "",
   "main": "slyapi.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "nodemon --exec mocha -R min --reporter spec --exit",
     "start": "node index.js",
-    "watch": "nodemon"
+    "watch": "nodemon",
+    "testWatch": "nodemon --exec mocha -R min --reporter spec --exit"
   },
   "author": "Timbo Slice",
   "license": "ISC",
@@ -27,11 +28,15 @@
     "passport-local": "^1.0.0"
   },
   "devDependencies": {
+    "chai": "^4.2.0",
+    "chai-http": "^4.3.0",
+    "mocha": "^6.2.2",
     "nodemon": "^1.19.4"
   },
   "nodemonConfig": {
     "ext": "*js",
     "watch": [
+      "*",
       "**/*"
     ],
     "ignore": [

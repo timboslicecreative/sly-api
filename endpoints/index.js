@@ -4,7 +4,8 @@ let endpoints = {};
 
 const loadEndpoints = () => {
     let skip = [
-        path.basename(__filename)
+        path.basename(__filename),
+        'auth'
     ];
 
     let files = fs.readdirSync(__dirname)
@@ -25,11 +26,11 @@ const loadEndpoints = () => {
 
 class Endpoint {
 
-    constructor(app, path, controller, authStrategies) {
+    constructor(app, path, controller, strategies) {
         this.app = app;
         this.path = path;
         this.controller = controller;
-        this.authStrategies = authStrategies;
+        this.strategies = strategies;
     }
 
     initialize() {
@@ -38,10 +39,11 @@ class Endpoint {
 
 class CrudEndpoint extends Endpoint {
 
-    constructor(app, path, controller, authStrategies) {
-        super(app, path, controller, authStrategies);
+    constructor(app, path, controller, strategies) {
+        super(app, path, controller, strategies);
+        this.strategy = strategies.jsonWebToken;
+        this.controller = controller;
         this.initialize();
-        this.authStrategy = authStrategies.jsonWebToken;
     }
 
     initialize() {
@@ -50,31 +52,32 @@ class CrudEndpoint extends Endpoint {
         this.read();
         this.update();
         this.patch();
+
         this.delete();
     }
 
     list() {
-        this.app.get(`${this.path}`, this.authStrategy, this.controller.list);
+        this.app.get(`${this.path}`, this.strategy, this.controller.list);
     }
 
     create() {
-        this.app.post(`${this.path}`, this.authStrategy, this.controller.create);
+        this.app.post(`${this.path}`, this.strategy, this.controller.create);
     }
 
     read() {
-        this.app.post(`${this.path}/:id`, this.authStrategy, this.controller.read);
+        this.app.post(`${this.path}/:id`, this.strategy, this.controller.read);
     }
 
     update() {
-        this.app.put(`${this.path}/:id`, this.authStrategy, this.controller.update);
+        this.app.put(`${this.path}/:id`, this.strategy, this.controller.update);
     }
 
     patch() {
-        this.app.patch(`${this.path}/:id`, this.authStrategy, this.controller.patch);
+        this.app.patch(`${this.path}/:id`, this.strategy, this.controller.patch);
     }
 
     delete() {
-        this.app.delete(`${this.path}/:id`, this.authStrategy, this.controller.delete);
+        this.app.delete(`${this.path}/:id`, this.strategy, this.controller.delete);
     }
 }
 
