@@ -20,7 +20,7 @@ class AuthController extends Controller {
     }
 
     authenticate(req, res) {
-        const sendToken = req.params.token;
+        const sendToken = req.query.token;
         if (sendToken) {
             res.json({token: req.user.generateJsonWebToken()});
         } else {
@@ -34,7 +34,7 @@ class AuthController extends Controller {
     }
 
     logout(req, res) {
-        deauthenticate(res);
+        res.clearCookie('token', COOKIE_CONFIG);
         res.json({});
     }
 

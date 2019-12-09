@@ -30,6 +30,7 @@ class AuthEndpoint extends Endpoint {
          * Username/Code Authentication
          * Accepts url param 'token' to return just the token
          */
+        //TODO: write test for this endpoint
         app.post('/auth/code', authCode, controller.authenticate);
         /**
          * Json Web Token Authentication

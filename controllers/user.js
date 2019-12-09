@@ -21,7 +21,6 @@ class UserController extends Controller {
 
 
     authenticate(req, res) {
-        console.log(`authentivcate ${req.user} `);
         const sendToken = req.params.token;
         if (sendToken) {
             res.json({token: req.user.generateJsonWebToken()});
@@ -47,7 +46,6 @@ class UserController extends Controller {
                 return res.json(user);
             })
             .catch(error => {
-                console.log('created user error', error);
                 res.status(400).json(MONGO_ERRORS[error.code] || error)
             });
     }

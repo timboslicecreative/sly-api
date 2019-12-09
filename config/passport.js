@@ -99,15 +99,14 @@ class Passport {
 
         return function (req, res, next) {
             auth(strategy, strategyOptions, function (error, user, info) {
-                //TODO: log auth errors somewhere so problems can be detected by volume increases
+                //TODO: Issue #3: log auth errors somewhere so problems can be detected by volume increases
+                //TODO: Issue #4: match errors/info to better error responses
                 if (error) {
                     controller.deauthenticate(res);
-                    //console.log('AuthStrategy:error', info);
                     return res.status(404).json(error);
                 }
                 if (!user) {
                     controller.deauthenticate(res);
-                    //PACKAGEconsole.log('AuthStrategy:no user:info', info);
                     return res.status(401).json(errors.named['invalid-credentials']);
                 }
                 req.user = user;
